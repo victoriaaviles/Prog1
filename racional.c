@@ -26,16 +26,24 @@ long aleat (long min, long max)
 
 /* Máximo Divisor Comum entre a e b      */
 /* calcula o MDC pelo método de Euclides */
-long mdc (long a, long b)
+long mdc (long a, long b) 
 {
-  /* implemente aqui */
+  long resto;
+    while (b != 0) 
+    {
+      resto = a % b;
+      a = b;
+      b = resto;
+    }
+
+  return a;
 }
 
 /* Mínimo Múltiplo Comum entre a e b */
 /* mmc = (a * b) / mdc (a, b)        */
 long mmc (long a, long b)
 {
-  /* implemente aqui */
+  return (a * b) / mdc(a, b);
 }
 
 /* Recebe um número racional e o simplifica.
@@ -49,4 +57,3 @@ struct racional simplifica_r (struct racional r)
 }
 
 /* implemente as demais funções aqui */
-
