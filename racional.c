@@ -40,18 +40,6 @@ long mdc (long a, long b)
     }
 
   return a;
-<<<<<<< HEAD
-=======
-  long resto;
-    while (b != 0) 
-    {
-      resto = a % b;
-      a = b;
-      b = resto;
-    }
-
-  return a;
->>>>>>> recuperado
 }
 
 /* Mínimo Múltiplo Comum entre a e b */
