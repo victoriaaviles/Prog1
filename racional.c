@@ -80,7 +80,10 @@ struct racional simplifica_r (struct racional r)
 /* Cria um número racional com o numerador e denominador indicados. */
 struct racional cria_r (long numerador, long denominador)
 {
-
+  struct racional r;
+    r.num = numerador;
+    r.den = denominador;
+  return r;
 }
 
 /* Retorna 1 se o racional r for válido ou 0 se for inválido.

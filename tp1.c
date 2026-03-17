@@ -6,14 +6,18 @@
 
 /* coloque aqui seus includes (primeiro os <...>, depois os "...") */
 #include <stdio.h>
-
+#include <stdlib.h>
+#include <time.h>
+#include "racional.h"
 
 /* programa principal */
 int main ()
 {
     srand (0); /* use assim, com zero */
     
-    /* a completar! */
+    struct racional r1, r2, result;
+
+
 
     return (0) ;
 }
