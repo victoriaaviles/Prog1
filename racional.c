@@ -29,7 +29,7 @@ long aleat (long min, long max)
 
 /* Máximo Divisor Comum entre a e b      */
 /* calcula o MDC pelo método de Euclides */
-long mdc (long a, long b)
+long mdc (long a, long b) 
 {
   long resto;
     while (b != 0) 
@@ -40,6 +40,18 @@ long mdc (long a, long b)
     }
 
   return a;
+<<<<<<< HEAD
+=======
+  long resto;
+    while (b != 0) 
+    {
+      resto = a % b;
+      a = b;
+      b = resto;
+    }
+
+  return a;
+>>>>>>> recuperado
 }
 
 /* Mínimo Múltiplo Comum entre a e b */
@@ -80,10 +92,14 @@ struct racional simplifica_r (struct racional r)
 /* Cria um número racional com o numerador e denominador indicados. */
 struct racional cria_r (long numerador, long denominador)
 {
-  struct racional r;
-    r.num = numerador;
-    r.den = denominador;
-  return r;
+ struct racional r;
+
+ r.num = numerador;
+ r.den = denominador;
+
+ r = simplifica_r (r);
+ 
+ return r;
 }
 
 /* Retorna 1 se o racional r for válido ou 0 se for inválido.
