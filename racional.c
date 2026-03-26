@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "racional.h"
+
 /*
  * Implemente aqui as funcoes definidas no racionais.h; caso precise,
  * pode definir aqui funcoes auxiliares adicionais, que devem ser usadas
@@ -49,6 +50,7 @@ long mdc (long a, long b)
 /* mmc = (a * b) / mdc (a, b)        */
 long mmc (long a, long b)
 {
+  if (a == 0 || b == 0) return 0;
   return (a * b) / mdc (a, b);
 }
 
@@ -88,9 +90,7 @@ struct racional cria_r (long numerador, long denominador)
  r.num = numerador;
  r.den = denominador;
 
- r = simplifica_r (r);
- 
- return r;
+ return simplifica_r (r);
 }
 
 /* Retorna 1 se o racional r for válido ou 0 se for inválido.
@@ -113,7 +113,7 @@ struct racional sorteia_r (long min, long max)
   r.num = aleat (min, max);
   r.den = aleat (min, max);
   
-  return r;
+  return simplifica_r (r);
 }
 
 /* Imprime um racional r, respeitando estas regras:

@@ -35,7 +35,7 @@ int main ()
             
             if (valido_r (r1) == 0 || valido_r (r2) == 0)
             {
-                printf ("NUMERO INVALIDO");
+                printf ("NUMERO INVALIDO\n");
                 return 1;
             }
 
