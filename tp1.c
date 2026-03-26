@@ -21,7 +21,7 @@ int main ()
 
     if (n > 0 && n < 100 && max > 0 && max < 30) 
     {
-        for (int i = 0; i < n; i++) 
+        for (int i = 1; i <= n; i++) 
         {
             printf ("%d: ", i);
 
@@ -42,21 +42,24 @@ int main ()
             struct racional result_soma = soma_r (r1, r2);
             struct racional result_sub = subtrai_r (r1, r2);
             struct racional result_mult = multiplica_r (r1, r2);
+            struct racional result_div = divide_r (r1, r2);
 
 
-            if (r1.den == 0 || r2.den == 0)
+            if (valido_r (result_div) == 0)
             {
                 printf ("DIVISAO INVALIDA");
                 return 1;
             }
-            struct racional result_div = divide_r (r1, r2);
 
             imprime_r (result_soma);
+            printf (" ");
             imprime_r (result_sub);
+            printf (" ");
             imprime_r (result_mult);
+            printf (" ");
             imprime_r (result_div);
             printf ("\n");
         }
     }
-    return (0) ;
+    return (0);
 }

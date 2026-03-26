@@ -11,15 +11,12 @@
 /* coloque aqui seus includes (primeiro os <...>, depois os "...") */
 #include <stdio.h>
 #include <stdlib.h>
+#include "racional.h"
 /*
  * Implemente aqui as funcoes definidas no racionais.h; caso precise,
  * pode definir aqui funcoes auxiliares adicionais, que devem ser usadas
  * somente neste arquivo.
 */
-struct racional {
-    long num;
-    long den;
-};
 
 /* retorna um número aleatório entre min e max, inclusive. */
 long aleat (long min, long max)
@@ -31,6 +28,12 @@ long aleat (long min, long max)
 /* calcula o MDC pelo método de Euclides */
 long mdc (long a, long b) 
 {
+  if (a < 0) 
+  a = -a;
+
+  if (b < 0)
+  b = -b;
+
   long resto;
     while (b != 0) 
     {
@@ -110,7 +113,6 @@ struct racional sorteia_r (long min, long max)
   r.num = aleat (min, max);
   r.den = aleat (min, max);
   
-  r = simplifica_r (r);
   return r;
 }
 
@@ -151,8 +153,10 @@ struct racional soma_r (struct racional r1, struct racional r2)
 {
   struct racional result;
     if (r1.den == 0 || r2.den == 0) 
+    {
       result.den = 0;
-    return result;
+      return result;
+    }
   
   result.num = (r2.den * r1.num) + (r1.den * r2.num);
   result.den = (r1.den * r2.den);
@@ -166,8 +170,10 @@ struct racional subtrai_r (struct racional r1, struct racional r2)
 {
   struct racional result;
     if (r1.den == 0 || r2.den == 0)
+    {
       result.den = 0;
-    return result;
+      return result;
+    }
 
   result.num = (r2.den * r1.num) - (r1.den * r2.num);
   result.den = (r1.den * r2.den);
@@ -181,8 +187,10 @@ struct racional multiplica_r (struct racional r1, struct racional r2)
 {
   struct racional result;
     if (r1.den == 0 || r2.den == 0)
+    {
       result.den = 0;
-    return result;
+      return result;
+    }
 
   result.num = (r1.num * r2.num);
   result.den = (r1.den * r2.den);
@@ -196,13 +204,11 @@ struct racional multiplica_r (struct racional r1, struct racional r2)
 struct racional divide_r (struct racional r1, struct racional r2)
 {
   struct racional result;
-    if (r1.den == 0 || r2.den == 0)
+    if (r1.den == 0 || r2.den == 0 || r2.num == 0)
+    {
       result.den = 0;
-    return result;
-
-    if (r2.num == 0) 
-      result.den = 0;
-    return result;
+      return result;
+    }
   
   result.num = (r1.num * r2.den);
   result.den = (r1.den * r2.num);
