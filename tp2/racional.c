@@ -80,13 +80,11 @@ struct racional simplifica_r (struct racional r)
 
 /* implemente as demais funções de racional.h aqui */
 
-
 /* Retorna o numerador do racional r */
 long numerador_r (struct racional r)
   {
     return r.num;
   }
-
 
 /* Retorna o denominador do racional r */
 long denominador_r (struct racional r)
@@ -161,7 +159,23 @@ void imprime_r (struct racional r)
 
 /* Compara dois racionais r1 e r2. Retorno: -2 se r1 ou r2 for inválido,
  * -1 se r1 < r2, 0 se r1 = r2 ou 1 se r1 > r2 */
-int compara_r (struct racional r1, struct racional r2);
+int compara_r (struct racional r1, struct racional r2)
+{
+  if (!valido_r (r1) || !valido_r (r2))
+    return -2;
+
+  long up = r1.num * r2.den;
+
+  long down = r2.num * r1.num;
+
+  if (up < down)
+    return -1;
+
+  if (up > down)
+    return 1;
+
+  return 0;
+}
 
 /* Retorna a soma dos racionais r1 e r2 no parametro *r3.
  * Retorna 1 se a operacao foi bem sucedida ou
