@@ -220,4 +220,3 @@ int divide_r (struct racional r1, struct racional r2, struct racional *r3)
 
   return 1;
 }
-

@@ -8,9 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "racional.h"
-#include "racional.c"
 
 /* coloque aqui as funções auxiliares que precisar neste arquivo */
+struct racional simplifica_r (struct racional r);
 
 /* programa principal */
 int main ()
