@@ -30,7 +30,6 @@ long mdc (long a, long b)
 }
 
 /* Mínimo Múltiplo Comum entre a e b */
-/* mmc = (a * b) / mdc (a, b)        */
 long mmc (long a, long b)
 {
   if (a == 0 || b == 0) 
@@ -38,11 +37,7 @@ long mmc (long a, long b)
   return (a * b) / mdc (a, b);
 }
 
-/* Recebe um número racional e o simplifica.
- * Por exemplo, ao receber 10/8 deve retornar 5/4.
- * Se ambos numerador e denominador forem negativos, deve retornar um positivo.
- * Se o denominador for negativo, o sinal deve migrar para o numerador.
- * Se r for inválido, devolve-o sem simplificar. */
+/* Recebe um número racional e o simplifica.*/
 struct racional simplifica_r (struct racional r)
 {
   if (r.den == 0)
