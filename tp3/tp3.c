@@ -4,7 +4,21 @@
 
 /* coloque aqui as funções auxiliares que precisar neste arquivo */
 
-/* programa principal */
+/*funcao para imprimir estado do vetor*/
+void estado_vetor(struct racional **v, int n) 
+{
+  printf("VETOR = ");
+  for (int i = 0; i < n; i++) 
+  {
+    imprime_r(v[i]);
+
+    if (i < n - 1)
+    printf(" ");
+  }
+  printf("\n");
+}
+
+
 int main ()
 {
   int n, i, j;
@@ -24,17 +38,13 @@ int main ()
   for (i = 0; i < n; i++) 
   {
     if (scanf ("%ld %ld", &num, &den) == 2)
-    v[i] = cria_r(num, den);
+      v[i] = cria_r(num, den);
+    else 
+      v[i] = NULL;
   }
 
   /* imprime "VETOR = " e os racionais apontados pelo vetor */
-  printf ("VETOR = ");
-  for (i = 0; i < n; i++)
-  {
-    imprime_r (v[i]);
-    printf (" ");
-  }
-  printf ("\n");
+  estado_vetor (v, n);
 
   /* elimina do vetor os racionais inválidos */
   for (i = 0; i < n; i++)
@@ -45,19 +55,14 @@ int main ()
 
       for (j = i; j < n - 1; j++)
       v[j] = v [j + 1];
+
       n--;
       i--;
     }
   }
 
   /* imprime "VETOR = " e o vetor resultante */
-  printf("VETOR = ");
-  for (i = 0; i < n; i++)
-  {
-    imprime_r(v[i]);
-    printf(" ");
-  }
-  printf("\n");
+  estado_vetor (v, n);
 
   /* ordena o vetor em ordem crescente (Selection Sort) */
   for (i = 0; i < n - 1; i++)
@@ -74,13 +79,7 @@ int main ()
   }
 
   /* imprime "VETOR = " e os racionais apontados pelo vetor */
-  printf("VETOR = ");
-  for (i = 0; i < n; i++) 
-  {
-    imprime_r(v[i]);
-    printf(" ");
-  }
-  printf("\n");
+  estado_vetor (v, n);
 
   /* calcula a soma dos racionais apontados pelo vetor */
   soma_total = cria_r(0,1);
@@ -101,13 +100,7 @@ int main ()
   }
 
   /* imprime "VETOR = " e os racionais apontados pelo vetor */
-  printf("VETOR = ");
-  for (i = 0; i < n; i++)
-  {
-    imprime_r(v[i]);
-    printf(" ");
-  }
-  printf("\n");
+  estado_vetor (v, n);
 
   /* libera o vetor de ponteiros e o espaço da soma */
   free(v);
@@ -115,4 +108,3 @@ int main ()
 
   return 0;
 }
-
