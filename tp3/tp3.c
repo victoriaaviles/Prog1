@@ -57,7 +57,7 @@ int main ()
     imprime_r(v[i]);
     printf(" ");
   }
-  prinft("\n");
+  printf("\n");
 
   /* ordena o vetor em ordem crescente (Selection Sort) */
   for (i = 0; i < n - 1; i++)
