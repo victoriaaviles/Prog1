@@ -1,27 +1,55 @@
 #include "lista.h"
-/* coloque demais includes aqui */
+#include <stdlib.h>
 
-/* ------------------- Nao altere estas structs ------------------------- */
-struct nodo {
+struct nodo 
+{
     int chave;
     struct nodo *prox;
 };
 
-struct lista {
+struct lista 
+{
     struct nodo *ini;
     struct nodo *ptr; /* ponteiro para algum nodo da lista (iterador) */
     int tamanho;
-
 };
 /* ---------------------------------------------------------------------- */
 
-struct lista *lista_cria (){
+struct lista *lista_cria ()
+{
+    struct lista *list = malloc (sizeof (struct lista));
+
+    if (list != NULL)
+    {
+        list -> ini = NULL;
+        list -> ptr = NULL;
+        list -> tamanho = 0;
+    }
+
+    return list;
 }
 
-void lista_destroi (struct lista **lista){
+void lista_destroi (struct lista **lista)
+{
+    if (lista == NULL || *lista == NULL)
+    return;
+
+    struct nodo *atual = (*lista) -> ini;
+    struct nodo *proximo;
+
+    while (atual != NULL)
+    {
+        proximo = atual -> prox;
+        free (atual);
+        atual = proximo;
+    }
+
+    free (*lista);
+    *lista = NULL;
 }
 
 int lista_insere_inicio (struct lista *lista, int chave){
+
 }
 
 int lista_insere_fim (struct lista *lista, int chave){
