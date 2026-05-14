@@ -67,17 +67,59 @@ int lista_remove_fim (struct lista *lista, int *chave){
 int lista_remove_ordenado (struct lista *lista, int chave){
 }
 
-int lista_vazia (struct lista *lista){
+int lista_vazia (struct lista *lista)
+{
+    if (lista->ini == NULL)
+    {
+        return 1;
+    }
+    return 0;
 }
 
-int lista_tamanho (struct lista *lista){
+int lista_tamanho (struct lista *lista)
+{
+    lista_vazia
+
+    int tamanho 
 }
 
-int lista_pertence (struct lista *lista, int chave){
+int lista_pertence (struct lista *lista, int chave)
+{
+    if (lista == NULL || lista->ini == NULL)
+    {
+        return 0;
+    }
+
+    int valor_atual;
+
+    lista_inicia_iterador (lista);
+
+    while (lista_incrementa_iterador (lista, &valor_atual))
+    {
+        if (valor_atual == chave)
+        {
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
-void lista_inicia_iterador (struct lista *lista){
+void lista_inicia_iterador (struct lista *lista)
+{
+    if (lista != NULL)
+    {
+        lista->ptr = lista->ini;
+    }
 }
 
-int lista_incrementa_iterador (struct lista *lista, int *chave){
+int lista_incrementa_iterador (struct lista *lista, int *chave)
+{
+    if (lista == NULL || lista->ptr == NULL)
+    {
+        return 0;
+    }
+
+    *chave = lista->ptr->prox;
+    return 1;
 }
