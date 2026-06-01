@@ -17,8 +17,6 @@ struct fprio_t
   int num ;         // número de itens na fila
 } ;
 
-// A COMPLETAR
-
 // Cria uma fila vazia.
 // Retorno: ponteiro para a fila criada ou NULL se erro.
 struct fprio_t *fprio_cria ()
@@ -102,17 +100,21 @@ int fprio_insere (struct fprio_t *f, void *item, int tipo, int prio)
 // Retorno: ponteiro para o item retirado ou NULL se fila vazia ou erro.
 void *fprio_retira (struct fprio_t *f, int *tipo, int *prio)
 {
-  if (f == NULL || f->prim == NULL) 
+  if (f == NULL || tipo == NULL || prio == NULL) 
+  {
+    return NULL;
+  }
+
+  if (f->prim == NULL)
   {
     return NULL;
   }
 
   struct fpnodo_t *remover = f->prim;
-
   void *item = remover->item;
 
-  if (tipo != NULL) *tipo = remover->tipo;
-  if (prio != NULL) *prio = remover->prio;
+  *tipo = remover->tipo;
+  *prio = remover->prio;
 
   f->prim = f->prim->prox;
   
