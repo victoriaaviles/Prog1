@@ -9,8 +9,8 @@
 #include "fila.h"
 
 #define T_INICIO 0
-#define T_FIM_DO_MUNDO 1000    // 525600
-#define N_TAMANHO_MUNDO 500    // 20000
+#define T_FIM_DO_MUNDO 525600
+#define N_TAMANHO_MUNDO 20000
 #define N_HABILIDADES 10
 #define N_HEROIS (N_HABILIDADES * 5)
 #define N_BASES (N_HEROIS / 5)

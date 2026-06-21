@@ -126,7 +126,7 @@ void evento_entra (mundo_t *w, event_t *event, struct fprio_t *lef)
     printf("%6d: ENTRA HEROI %2d BASE %d (%2d/%2d) SAI %d\n", 
         temp, h->id_heroi, b->id_base, cjto_card(b->presentes), b->lotacao, temposaida);
 
-    event_t *novo_evento = cria_event (EVENT_SAI, temp, h->id_heroi, b->id_base, -1);
+    event_t *novo_evento = cria_event (EVENT_SAI, temposaida, h->id_heroi, b->id_base, -1);
     fprio_insere (lef, novo_evento, 0, temp + temp_permanencia);
 }
 
@@ -209,7 +209,8 @@ void evento_morre (mundo_t *w, event_t *event, struct fprio_t *lef)
 
 void evento_missao (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
-    missao_t *m = &w->missoes[event->h_id];
+    int id_m = event->m_id;
+    missao_t *m = &w->missoes[id_m];
     int temp = event->tempo;
 
     int bmp_id; 
@@ -277,7 +278,7 @@ void evento_missao (mundo_t *w, event_t *event, struct fprio_t *lef)
     }
     else
     {
-        event_t *novo_evento = cria_event (EVENT_MISSAO, temp + 24 * 60, -1, -1, m->id_missao);
+        event_t *novo_evento = cria_event (EVENT_MISSAO, temp + 24 * 60, -1, -1, id_m);
 
         status = fprio_insere (lef, novo_evento, 0, temp + 24 * 60);
         if (status < 0)
