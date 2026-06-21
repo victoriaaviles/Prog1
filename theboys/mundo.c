@@ -174,7 +174,7 @@ int encontrar_base_mais_proxima(mundo_t *w, struct missao_t *mi, struct fprio_t 
 
         printf ("%6d: MISSAO %d BASE %d DIST %d HEROIS [ ", w->relogio, mi->id_missao, id_base, dist);
         cjto_imprime (w->bases[id_base].presentes);
-        printf("]\n");
+        printf(" ]\n");
 
         for (int h = 0; h < w->n_herois; h++)
         {

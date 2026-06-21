@@ -112,7 +112,6 @@ void fila_imprime (struct fila_t *f)
 {
     if (!f || !f->prim)
     {
-        printf("FILA VAZIA\n");
         return;
     }
     
@@ -127,5 +126,4 @@ void fila_imprime (struct fila_t *f)
         }
         aux = aux->prox;
     }
-    printf("\n");
 }
