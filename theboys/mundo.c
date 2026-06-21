@@ -213,15 +213,25 @@ void mundo_destruir(mundo_t *w)
         return;
 
     for (int i = 0; i < w->n_herois; i++)
-        destroi_heroi(&w->herois[i]);
+    {
+        if (w->herois[i].habilidades)
+            cjto_destroi (w->herois[i].habilidades);
+    }
 
     for (int i = 0; i < w->n_bases; i++) 
     {
-        destroi_base(&w->bases[i]);
+        if (w->bases[i].presentes)
+            cjto_destroi(w->bases[i].presentes);
+        if (w->bases[i].espera)
+            fila_destroi(w->bases[i].espera);
     }
 
     for (int i = 0; i < w->n_missoes; i++)
-        destroi_missao(&w->missoes[i]);
+    {
+        if (w->missoes[i].habilidades)
+            cjto_destroi(w->missoes[i].habilidades);
+    }
+
 
     free(w->herois);
     free(w->bases);

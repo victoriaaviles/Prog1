@@ -97,7 +97,7 @@ missao_t *cria_missao (int id)
     m->perigo = rand() % (100 - 0 + 1) + 0;
     m->habilidades = cjto_aleat(qtd_hab_missao, N_HABILIDADES);
     m->tentativas = 0;
-    m->cumprida = false;
+    m->cumprida = 0;
 
     return m;
 }
