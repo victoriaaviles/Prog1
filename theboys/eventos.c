@@ -33,7 +33,7 @@ void evento_chega (mundo_t *w, event_t *event, struct fprio_t *lef)
     base_t *b = &w->bases[event->b_id];
     int temp = event->tempo;
 
-    printf("%6d: CHEGA  HEROI %2d BASE %d (%2d/%2d) ", temp, h->id_heroi, b->id_base, cjto_card(b->presentes), b->lotacao);
+    printf("%6d: CHEGA  HEROI %2d BASE %d (%2d/%2d)", temp, h->id_heroi, b->id_base, cjto_card(b->presentes), b->lotacao);
 
     h->base_id = b->id_base;
     int espera = 0;
@@ -46,13 +46,13 @@ void evento_chega (mundo_t *w, event_t *event, struct fprio_t *lef)
 
     if (espera == 1)
     {
-        printf ("ESPERA");
+        printf ("ESPERA\n");
         event_t *novo_evento = cria_event (EVENT_ESPERA, temp, h->id_heroi, b->id_base, -1);
         fprio_insere (lef, novo_evento, 0, temp);
     }
     else
     {
-        printf ("DESISTE");
+        printf ("DESISTE\n");
         event_t *novo_evento = cria_event (EVENT_DESISTE, temp, h->id_heroi, b->id_base, -1);
         fprio_insere (lef, novo_evento, 0, temp);
     }
@@ -64,7 +64,7 @@ void evento_espera (mundo_t *w, event_t *event, struct fprio_t *lef)
     base_t *b = &w->bases[event->b_id];
     int temp = event->tempo;
 
-    printf("%6d: ESPERA HEROI %2d BASE %d (%2d)", temp, h->id_heroi, b->id_base, fila_tamanho(b->espera));
+    printf("%6d: ESPERA HEROI %2d BASE %d (%2d)\n", temp, h->id_heroi, b->id_base, fila_tamanho(b->espera));
 
     fila_insere (b->espera, h->id_heroi);
 
@@ -81,7 +81,7 @@ void evento_desiste (mundo_t *w, event_t *event, struct fprio_t *lef)
     base_t *b = &w->bases[event->b_id];
     int temp = event->tempo;
 
-    printf("%6d: DESIST HEROI %2d BASE %d\n", temp, h->id_heroi, b->id_base);
+    printf("%6d: DESISTE HEROI %2d BASE %d\n", temp, h->id_heroi, b->id_base);
 
     int d_id = rand() % N_BASES; // d_id = destino id
 
@@ -160,7 +160,7 @@ void evento_sai (mundo_t *w, event_t *event, struct fprio_t *lef)
     if (status < 0)
         return;
 
-    printf("%6d: SAI  HEROI %2d BASE %d (%2d/%2d)", temp, h->id_heroi, b->id_base, (cjto_card(b->presentes)), b->lotacao);
+    printf("%6d: SAI  HEROI %2d BASE %d (%2d/%2d)\n", temp, h->id_heroi, b->id_base, (cjto_card(b->presentes)), b->lotacao);
 }
 
 void evento_viaja (mundo_t *w, event_t *event, struct fprio_t *lef)
@@ -186,7 +186,7 @@ void evento_viaja (mundo_t *w, event_t *event, struct fprio_t *lef)
     if (status < 0)
         return;
     
-    printf("%6d: VIAJA  HEROI %2d BASE %d BASE %d DIST %d VEL %d CHEGA %d", temp, h->id_heroi, h->base_id, dest, (int)(dist + 0.5), h->velocidad, temp + duracao);
+    printf("%6d: VIAJA  HEROI %2d BASE %d BASE %d DIST %d VEL %d CHEGA %d\n", temp, h->id_heroi, h->base_id, dest, (int)(dist + 0.5), h->velocidad, temp + duracao);
 }
 
 void evento_morre (mundo_t *w, event_t *event, struct fprio_t *lef)
@@ -202,7 +202,7 @@ void evento_morre (mundo_t *w, event_t *event, struct fprio_t *lef)
     cjto_retira(b->presentes, h->id_heroi);     //retira heroi do cjto
     h->morto = 1;   //////
 
-    printf("%6d: MORRE  HEROI %2d MISSAO %d", temp, h->id_heroi, m->id_missao);
+    printf("%6d: MORRE  HEROI %2d MISSAO %d\n", temp, h->id_heroi, m->id_missao);
     event_t *novo_evento = cria_event(EVENT_AVISA, temp, -1, b->id_base, -1);
     fprio_insere (lef, novo_evento, 0, temp);
 }
