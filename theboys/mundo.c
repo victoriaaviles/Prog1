@@ -52,6 +52,7 @@ mundo_t* mundo_criar()
         free(nova_base);
     }
 
+    // vetor para os herois
     for (int i = 0; i < w->n_herois; i++) 
     {
         heroi_t *novo_heroi = cria_heroi(i);
@@ -65,6 +66,7 @@ mundo_t* mundo_criar()
         free(novo_heroi);
     }
 
+    // vetor para as missoes
     for (int i = 0; i < w->n_missoes; i++) 
     {
         missao_t *nova_missao = cria_missao (i);

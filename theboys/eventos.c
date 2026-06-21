@@ -58,6 +58,7 @@ void evento_chega (mundo_t *w, event_t *event, struct fprio_t *lef)
     }
 }
 
+// heroi H entra na fila de espera da base B
 void evento_espera (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
     heroi_t *h = &w->herois[event->h_id];
@@ -65,7 +66,7 @@ void evento_espera (mundo_t *w, event_t *event, struct fprio_t *lef)
     int temp = event->tempo;
 
     fila_insere (b->espera, h->id_heroi);
-    
+
     printf("%6d: ESPERA HEROI %2d BASE %d (%2d)\n", temp, h->id_heroi, b->id_base, fila_tamanho(b->espera));
 
     if (fila_tamanho (b->espera) > b->fila_max)
@@ -75,6 +76,7 @@ void evento_espera (mundo_t *w, event_t *event, struct fprio_t *lef)
     fprio_insere (lef, novo_evento, 0, temp);
 }
 
+// heroi H desiste de entrar na base B
 void evento_desiste (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
     heroi_t *h = &w->herois[event->h_id];
@@ -89,6 +91,7 @@ void evento_desiste (mundo_t *w, event_t *event, struct fprio_t *lef)
     fprio_insere (lef, novo_evento, 0, temp);
 }
 
+// avisa: porteiro trata da base B
 void evento_avisa (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
     base_t *b = &w->bases[event->b_id];
@@ -114,6 +117,7 @@ void evento_avisa (mundo_t *w, event_t *event, struct fprio_t *lef)
     }
 }
 
+//  heroi H entra na base B
 void evento_entra (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
     heroi_t *h = &w->herois[event->h_id];
@@ -130,6 +134,7 @@ void evento_entra (mundo_t *w, event_t *event, struct fprio_t *lef)
     fprio_insere (lef, novo_evento, 0, temp + temp_permanencia);
 }
 
+// heroi H sai da base B
 void evento_sai (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
     heroi_t *h = &w->herois[event->h_id];
@@ -163,6 +168,7 @@ void evento_sai (mundo_t *w, event_t *event, struct fprio_t *lef)
     printf("%6d: SAI  HEROI %2d BASE %d (%2d/%2d)\n", temp, h->id_heroi, b->id_base, (cjto_card(b->presentes)), b->lotacao);
 }
 
+//  heroi H se desloca para uma base D
 void evento_viaja (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
     heroi_t *h = &w->herois[event->h_id];
@@ -189,6 +195,7 @@ void evento_viaja (mundo_t *w, event_t *event, struct fprio_t *lef)
     printf("%6d: VIAJA  HEROI %2d BASE %d BASE %d DIST %d VEL %d CHEGA %d\n", temp, h->id_heroi, h->base_id, dest, (int)(dist + 0.5), h->velocidad, temp + duracao);
 }
 
+// heroi H morre no instante T
 void evento_morre (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
     heroi_t *h = &w->herois[event->h_id];
@@ -200,13 +207,14 @@ void evento_morre (mundo_t *w, event_t *event, struct fprio_t *lef)
         return;
     
     cjto_retira(b->presentes, h->id_heroi);     //retira heroi do cjto
-    h->morto = 1;   //////
+    h->morto = 1;  
 
     printf("%6d: MORRE  HEROI %2d MISSAO %d\n", temp, h->id_heroi, m->id_missao);
     event_t *novo_evento = cria_event(EVENT_AVISA, temp, -1, b->id_base, -1);
     fprio_insere (lef, novo_evento, 0, temp);
 }
 
+// missao M disparada no instante T
 void evento_missao (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
     int id_m = event->m_id;
@@ -230,6 +238,7 @@ void evento_missao (mundo_t *w, event_t *event, struct fprio_t *lef)
     cjto_imprime(m->habilidades);
     printf(" ]\n");
 
+    // calcula a distancia de todas as bases para o local da missao
     for (int i = 0; i < w->n_bases; i++) 
     {
         dist = calcula_distancia (w->bases[i].local, m->local);
@@ -240,7 +249,8 @@ void evento_missao (mundo_t *w, event_t *event, struct fprio_t *lef)
             return;
     }
 
-    bmp_id = encontrar_base_mais_proxima (w, m, dists_bases);
+    // busca a base mais proxima com as habilidades necessarias
+    bmp_id = encontrar_base_mais_proxima (w, m, dists_bases); 
 
     if (bmp_id >= 0)
     {
@@ -292,6 +302,7 @@ void evento_missao (mundo_t *w, event_t *event, struct fprio_t *lef)
     fprio_destroi (dists_bases);
 }
 
+// encerra a simulacao no instante T
 void evento_fim (mundo_t *w, event_t *event)
 {
     heroi_t *heroi;
