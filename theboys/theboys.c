@@ -11,8 +11,6 @@ int main ()
   srand(0);
   mundo_t *w = mundo_criar();
 
-  w = mundo_criar();
-
   if (!w)
     return -1;
 
@@ -28,5 +26,8 @@ int main ()
   agendar_evento (w, lef);
   execute_events(w, lef);
   
+  mundo_destruir (w);
+  fprio_destroi (lef);
+
   return (0) ;
 }
