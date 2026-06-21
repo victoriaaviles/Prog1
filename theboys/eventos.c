@@ -47,7 +47,7 @@ void evento_chega (mundo_t *w, event_t *event, struct fprio_t *lef)
     if (espera == 1)
     {
         printf ("ESPERA");
-        event_t *novo_evento = cria_event (EVENT_ESPERA, temp, h->base_id, b->id_base, -1);
+        event_t *novo_evento = cria_event (EVENT_ESPERA, temp, h->id_heroi, b->id_base, -1);
         fprio_insere (lef, novo_evento, 0, temp);
     }
     else
