@@ -3,55 +3,30 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include <time.h>
-#include "conjunto.h"
-#include "fila.h"
+#include "mundo.h"
 #include "fprio.h"
-#include "entidades.h"
-#include "eventos.h"
-
-// minimize o uso de variáveis globais
 
 int main ()
 {
   srand(0);
   mundo_t *w = mundo_criar();
 
-  for(int i=0; i<N_HEROIS; i++) 
-    agendar_evento(w, EVENT_CHEGA, rand()%4320, i, rand()%N_BASES, -1);
-    for(int i=0; i<N_MISSOES; i++) 
-      agendar_evento(w, EVENT_MISSAO, rand()%T_FIM_DO_MUNDO, -1, -1, i);
-    agendar_evento(w, EVENT_FIM, T_FIM_DO_MUNDO, -1, -1, -1);
+  w = mundo_criar();
 
-  event_t *ev;
-  int t;
-  int tipo;
-  while ((ev = fprio_retira(w->lef, &tipo, &t))) 
+  if (!w)
+    return -1;
+
+  struct fprio_t *lef;
+  lef = fprio_cria();
+
+  if (!lef)
   {
-    w->relogio = t;
-    w->eventos_tratados++;
-
-    if (ev->h_id != -1 && !w->herois[ev->h_id].vivo && ev->tipo != EVENT_MORRE) 
-    {
-      free(ev); continue;
-    }
-
-    switch (ev->tipo) 
-    {
-      case EVENT_CHEGA: evento_chega(w, ev); break;
-      case EVENT_ESPERA: evento_espera(w, ev); break;
-      case EVENT_DESISTE: evento_avisa(w, ev); break;
-      case EVENT_AVISA: evento_chega(w, ev); break;
-      case EVENT_ENTRA: evento_espera(w, ev); break;
-      case EVENT_SAI: evento_avisa(w, ev); break;
-      case EVENT_VIAJA: evento_chega(w, ev); break;
-      case EVENT_MISSAO: evento_espera(w, ev); break;
-      case EVENT_MORRE: evento_avisa(w, ev); break;
-      case EVENT_FIM: evento_fim(w, ev); mundo_destruir(w); free(ev); return 0;
-    }
-
-    free(ev);
+    mundo_destruir(w);
+    return -1;
   }
+
+  agendar_evento (w, lef);
+  execute_events(w, lef);
+  
   return (0) ;
 }
