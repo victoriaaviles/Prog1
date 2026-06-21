@@ -23,40 +23,59 @@ mundo_t* mundo_criar()
     w->relogio = T_INICIO;
     w->tamanho_mundo.x = N_TAMANHO_MUNDO;
     w->tamanho_mundo.y = N_TAMANHO_MUNDO;
-
     w->total_events = 0;
+
+    w->bases = malloc(w->n_bases * sizeof(base_t));
+    w->herois = malloc(w->n_herois * sizeof(heroi_t));
+    w->missoes = malloc(w->n_missoes * sizeof(missao_t));
+
+    if (!w->bases || !w->herois || !w->missoes) 
+    {
+        free(w->bases); 
+        free(w->herois); 
+        free(w->missoes); 
+        free(w);
+            return NULL;
+    }
 
     for (int i = 0; i < w->n_bases; i++) 
     {
-        w->bases[i] = cria_base(i);
+        base_t *nova_base = cria_base(i);
         
-        if (!w->bases[i].id_base)
+        if (!nova_base)
         {
             mundo_destruir (w);
             return NULL;
         }
+        w->bases[i] = *nova_base;
+
+        free(nova_base);
     }
 
     for (int i = 0; i < w->n_herois; i++) 
     {
-        w->herois[i].id_heroi = cria_heroi(i);
+        heroi_t *novo_heroi = cria_heroi(i);
 
-        if (!w->herois[i].id_heroi)
+        if (!novo_heroi)
         {
             mundo_destruir (w);
             return NULL;
         }
+        w->herois[i] = *novo_heroi;
+        free(novo_heroi);
     }
 
     for (int i = 0; i < w->n_missoes; i++) 
     {
-        w->missoes[i].id_missao = cria_missao (i);
+        missao_t *nova_missao = cria_missao (i);
 
-        if (!w->missoes[i].id_missao)
+        if (!nova_missao)
         {
             mundo_destruir (w);
             return NULL;
         }
+        w->missoes[i] = *nova_missao;
+        free(nova_missao);
     }
     return w;
 }
@@ -70,7 +89,7 @@ void agendar_evento(mundo_t *w, struct fprio_t *lef)
     {
         base = rand() % ((w->n_bases -1) - 0 + 1) + 0;
         tempo = rand() % (4320 - 0 + 1) + 0;
-        evento = cria_evento(tempo, EVENT_CHEGA, i, base);
+        evento = cria_event(EVENT_CHEGA, tempo,  i, base, -1);
 
         status_fprio = fprio_insere(lef, evento, EVENT_CHEGA, tempo);
         if (status_fprio < 0)
@@ -79,9 +98,9 @@ void agendar_evento(mundo_t *w, struct fprio_t *lef)
 
     for (int i = 0; i < w->n_missoes; i++)
     {
-        tempo = aleat(0, T_FIM_DO_MUNDO);
+        tempo = rand() % (T_FIM_DO_MUNDO - 0 + 1) + 0;
 
-        evento = cria_evento(tempo, EVENT_MISSAO, i, -1);
+        evento = cria_event(EVENT_MISSAO, tempo, -1, -1, i);
 
         status_fprio = fprio_insere(lef, evento, EVENT_MISSAO, tempo);
         if (status_fprio < 0)
@@ -89,8 +108,8 @@ void agendar_evento(mundo_t *w, struct fprio_t *lef)
     }
 
     tempo = T_FIM_DO_MUNDO;
-    evento = cria_evento(tempo, EVENT_FIM, -1, -1);
-    status_fprio = fprio_insere(lef, evento, EVENT_CHEGA, tempo);
+    evento = cria_event(EVENT_FIM, tempo, -1, -1, -1);
+    status_fprio = fprio_insere(lef, evento, EVENT_FIM, tempo);
 
     if (status_fprio < 0)
         return;
@@ -122,7 +141,7 @@ void execute_events(mundo_t *w, struct fprio_t *lef)
             case EVENT_VIAJA: evento_chega(w, evento, lef); break;
             case EVENT_MISSAO: evento_espera(w, evento, lef); break;
             case EVENT_MORRE: evento_avisa(w, evento, lef); break;
-            case EVENT_FIM: evento_fim(w, evento, lef); 
+            case EVENT_FIM: evento_fim(w, evento); 
             mundo_destruir(w); break;
         }
 
@@ -156,7 +175,7 @@ int encontrar_base_mais_proxima(mundo_t *w, struct missao_t *mi, struct fprio_t 
 
         printf ("%6d: MISSAO %d BASE %d DIST %d HEROIS [ ", w->relogio, mi->id_missao, id_base, dist);
         cjto_imprime (w->bases[id_base].presentes);
-        print("]\n");
+        printf("]\n");
 
         for (int h = 0; h < w->n_herois; h++)
         {
@@ -191,7 +210,7 @@ int encontrar_base_mais_proxima(mundo_t *w, struct missao_t *mi, struct fprio_t 
 void mundo_destruir(mundo_t *w) 
 {
     if (!w) 
-        return NULL;
+        return;
 
     for (int i = 0; i < w->n_herois; i++)
         destroi_heroi(&w->herois[i]);
@@ -204,7 +223,9 @@ void mundo_destruir(mundo_t *w)
     for (int i = 0; i < w->n_missoes; i++)
         destroi_missao(&w->missoes[i]);
 
-    free(w);
+    free(w->herois);
+    free(w->bases);
+    free(w->missoes);
 
-    return NULL;
+    free(w);
 }
