@@ -46,13 +46,13 @@ void evento_chega (mundo_t *w, event_t *event, struct fprio_t *lef)
 
     if (espera == 1)
     {
-        printf ("ESPERA\n");
+        printf (" ESPERA\n");
         event_t *novo_evento = cria_event (EVENT_ESPERA, temp, h->id_heroi, b->id_base, -1);
         fprio_insere (lef, novo_evento, 0, temp);
     }
     else
     {
-        printf ("DESISTE\n");
+        printf (" DESISTE\n");
         event_t *novo_evento = cria_event (EVENT_DESISTE, temp, h->id_heroi, b->id_base, -1);
         fprio_insere (lef, novo_evento, 0, temp);
     }
@@ -64,9 +64,9 @@ void evento_espera (mundo_t *w, event_t *event, struct fprio_t *lef)
     base_t *b = &w->bases[event->b_id];
     int temp = event->tempo;
 
-    printf("%6d: ESPERA HEROI %2d BASE %d (%2d)\n", temp, h->id_heroi, b->id_base, fila_tamanho(b->espera));
-
     fila_insere (b->espera, h->id_heroi);
+    
+    printf("%6d: ESPERA HEROI %2d BASE %d (%2d)\n", temp, h->id_heroi, b->id_base, fila_tamanho(b->espera));
 
     if (fila_tamanho (b->espera) > b->fila_max)
         b->fila_max = fila_tamanho(b->espera);
