@@ -141,8 +141,7 @@ void execute_events(mundo_t *w, struct fprio_t *lef)
             case EVENT_VIAJA: evento_viaja(w, evento, lef); break;
             case EVENT_MISSAO: evento_missao(w, evento, lef); break;
             case EVENT_MORRE: evento_morre(w, evento, lef); break;
-            case EVENT_FIM: evento_fim(w, evento); 
-            mundo_destruir(w); break;
+            case EVENT_FIM: evento_fim(w, evento); break;
         }
 
         free(evento);
