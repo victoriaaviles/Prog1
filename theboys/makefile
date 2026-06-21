@@ -12,7 +12,7 @@ HDR = fila.h fprio.h conjunto.h entidades.h eventos.h lista.h mundo.h
 
 # lista de arquivos-objeto (a completar)
 # não inclua conjunto.o, senão ele será removido com "make clean"
-OBJ = fila.o fprio.o theboys.o entidades.o eventos.o lista.o mundo.o
+OBJ = fila.o fprio.o entidades.o eventos.o lista.o mundo.o
 
 # construir o executável
 $(MAIN): $(MAIN).o $(OBJ) conjunto.o
@@ -23,6 +23,10 @@ $(MAIN).o: $(MAIN).c $(HDR)
 # construir os TADs
 fila.o: fila.c fila.h
 fprio.o: fprio.c fprio.h
+entidades.o: entidades.c entidades.h
+eventos.o: eventos.c eventos.h
+mundo.o: mundo.c mundo.h
+lista.o: eventos.c eventos.h 
 
 # executar
 run: $(MAIN)

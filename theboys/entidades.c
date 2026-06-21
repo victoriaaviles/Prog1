@@ -23,6 +23,7 @@ heroi_t *cria_heroi (int id)
     h->velocidad = rand() % (5000 - 50 + 1) + 50;
     h->morto = false;
 
+    // habilidades
     int qtd_hab_heroi = rand() % (3 - 1 + 1) + 1;
     h->habilidades = cjto_aleat(qtd_hab_heroi, N_HABILIDADES);
 
@@ -93,6 +94,7 @@ missao_t *cria_missao (int id)
     m->local.x = rand() % ((N_TAMANHO_MUNDO - 1) - 0 + 1) + 0;
     m->local.y = rand() % ((N_TAMANHO_MUNDO - 1) - 0 + 1) + 0;
 
+    // habilidades missao
     int qtd_hab_missao = rand() % (6 - 3 + 1) + 3;
     m->perigo = rand() % (100 - 0 + 1) + 0;
     m->habilidades = cjto_aleat(qtd_hab_missao, N_HABILIDADES);

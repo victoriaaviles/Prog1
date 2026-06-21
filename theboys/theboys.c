@@ -9,11 +9,14 @@
 int main ()
 {
   srand(0);
+
+  // inicializacao do mundo
   mundo_t *w = mundo_criar();
 
   if (!w)
     return -1;
 
+  // eventos futuros
   struct fprio_t *lef;
   lef = fprio_cria();
 
@@ -23,9 +26,11 @@ int main ()
     return -1;
   }
 
+  // eventos iniciais 
+  // simulacao do mundo
   agendar_evento (w, lef);
   execute_events(w, lef);
-  
+
   mundo_destruir (w);
   fprio_destroi (lef);
 
