@@ -85,4 +85,14 @@ typedef struct event_t
 
 int calcula_distancia(struct local_t c1, struct local_t c2);
 
+heroi_t *cria_heroi (int id);
+heroi_t *destroi_heroi(heroi_t *h);
+
+base_t *cria_base (int id);
+base_t *destroi_base(base_t *b);
+
+missao_t *cria_missao (int id);
+missao_t *destroi_missao(missao_t *m);
+
+
 #endif

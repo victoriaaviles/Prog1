@@ -29,6 +29,6 @@ void evento_morre (mundo_t *w, event_t *event, struct fprio_t *lef);
 
 void evento_missao (mundo_t *w, event_t *event, struct fprio_t *lef);
 
-void evento_fim (mundo_t *w, event_t *event, struct fprio_t *lef);
+void evento_fim (mundo_t *w, event_t *event);
 
 #endif

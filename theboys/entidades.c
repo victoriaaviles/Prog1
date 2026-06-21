@@ -60,7 +60,7 @@ base_t *cria_base (int id)
     b->n_missoes_participadas = 0;
     b->lotacao = rand() % (10 - 3 + 1) + 3;
     b->presentes = cjto_cria(N_HEROIS);
-    b->espera = lista_cria();
+    b->espera = fila_cria();
 
     return b;
 }
@@ -74,7 +74,7 @@ base_t *destroi_base(base_t *b)
         cjto_destroi(b->presentes);
 
     if (b->espera)
-        cjto_destroi(b->espera);
+        fila_destroi(b->espera);
 
     free(b);
     return NULL;
