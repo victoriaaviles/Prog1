@@ -1,253 +1,358 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <time.h>
 #include "conjunto.h"
 #include "entidades.h"
 #include "eventos.h"
+#include "fila.h"
+#include "fprio.h"
+#include "mundo.h"
 
-void evento_chega (mundo_t *w, event_t *event) 
+struct event_t *cria_event(int tipo, int tempo, int h_id, int b_id, int m_id)
 {
-    int h_id = event->h_id; // h_id = heroi id
-    int b_id = event->b_id; // b_id = base id
-    
-    w->herois[h_id].base_id = b_id;
-    
-    int numpresentes = cjto_card(w->bases[b_id].presentes);
-    int vagaslivres = w->bases[b_id].lotacao - numpresentes;
-    int tamfila = fila_tamanho(w->bases[b_id].espera);
-    
-    int decisaoespera;
-    
-    if (vagaslivres > 0 && tamfila == 0)
-        decisaoespera = 1; //verdade
+    event_t *event;
+
+    event = malloc(sizeof(struct event_t));
+    if (!event)
+        return NULL;
+
+    event->tempo = tempo;
+    event->tipo = tipo;
+    event->h_id = h_id;
+    event->m_id = m_id;
+    event->b_id = b_id;
+
+    return event;
+}
+
+// Heroi H chegando em uma base B no instante T
+void evento_chega (mundo_t *w, event_t *event, struct fprio_t *lef)
+{
+    heroi_t *h = &w->herois[event->h_id];
+    base_t *b = &w->bases[event->b_id];
+    int temp = event->tempo;
+
+    printf("%6d: CHEGA  HEROI %2d BASE %d (%2d/%2d) ", temp, h, b, cjto_card(b->presentes), b->lotacao);
+
+    h->base_id = b->id_base;
+    int espera = 0;
+    int evento_tipo;
+
+    // verifica se há vagas e se a fila é vazia
+    if (cjto_card(b->presentes) < b->lotacao && fila_tamanho(b->presentes) == 0)
+        espera = 1;
     else
-        decisaoespera = (w->herois[h_id].paciencia > (10 * tamfila));
+        espera = (h->paciencia) > (10 * fila_tamanho(b->espera));
 
-    printf("%6d: CHEGA HEROI %2d BASE %d (%2d/%2d) %s\n",
-        w->relogio, h_id, b_id, numpresentes, w->bases[b_id].lotacao, 
-        decisaoespera ? "ESPERA" : "DESISTE");
-
-    if (decisaoespera)
-        agendar_evento(w, EVENT_ESPERA, w->relogio, h_id, b_id, -1);
-    else
-        agendar_evento(w, EVENT_DESISTE, w->relogio, h_id, b_id, -1);
-}
-
-void evento_espera (mundo_t *w, event_t *event)
-{
-    int h_id = event->h_id; // h_id = heroi id
-    int b_id = event->b_id; // b_id = base id
-
-    int tamfila = fila_tamanho(w->bases[b_id].espera);
-
-    printf("%6d: ESPERA HEROI %2d BASE %d (%2d)\n", 
-        w->relogio, h_id, b_id, tamfila);
-  
-    fila_insere(w->bases[b_id].espera, h_id);
-
-    agendar_evento(w, EVENT_AVISA, w->relogio, -1, b_id, -1);
-}
-
-void evento_desiste (mundo_t *w, event_t *event)
-{
-    int h_id = event->h_id; // h_id = heroi id
-    int b_id = event->b_id; // b_id = base id
-
-    printf("%6d: DESIST HEROI %2d BASE %d\n", 
-        w->relogio, h_id, b_id);
-
-    int d_id = rand() % N_BASES; // d_id = destino id
-
-    agendar_evento(w, EVENT_VIAJA, w->relogio, h_id, d_id, -1);
-}
-
-void evento_avisa (mundo_t *w, event_t *event)
-{
-    int b_id = event->b_id;
-    base_t *base = &w->bases[b_id];
-
-    printf("%6d: AVISA PORTEIRO BASE %d (%2d/%2d) FILA [ ", 
-        w->relogio, b_id, cjto_card(base->presentes), base->lotacao);
-
-    fila_imprime(base->espera);
-    printf(" ]\n");
-
-    while ((cjto_card(base->presentes) < base->lotacao) && 
-        (fila_tamanho(base->espera) > 0))
+    if (espera == 1)
     {
-        int h_id_admit = fila_retira(base->espera, 0);
-        cjto_insere(base->presentes, h_id_admit); 
-        printf("%6d: AVISA PORTEIRO BASE %d ADMITE %2d\n", w->relogio, b_id, h_id_admit);   
-        agendar_evento(w, EVENT_ENTRA, w->relogio, h_id_admit, b_id, -1);
+        printf ("ESPERA");
+        event = cria_event (evento_espera, temp, h, b, -1);
+        fprio_insere (lef, event, 0, temp);
+    }
+    else
+    {
+        printf ("DESISTE");
+        event_t *event = cria_event (evento_desiste, temp, h, b, -1);
+        fprio_insere (lef, event, 0, temp);
     }
 }
 
-void evento_entra (mundo_t *w, event_t *event)
+void evento_espera (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
-    int h_id = event->h_id;
-    int b_id = event->b_id;
-    heroi_t *h = &w->herois[h_id];
-    base_t *b = &w->bases[b_id];
+    heroi_t *h = &w->herois[event->h_id];
+    base_t *b = &w->bases[event->b_id];
+    int temp = event->tempo;
 
-    int tempo_permanencia = 15 + h->paciencia * ((rand() % 20) + 1); //calculo do tempo de permanencia na base
-    int temposaida = w->relogio + tempo_permanencia;
+    printf("%6d: ESPERA HEROI %2d BASE %d (%2d)", temp, h, b, fila_tamanho(b->espera));
+
+    fila_insere (b->espera, h);
+
+    if (fila_tamanho (b->espera) > b->fila_max)
+        b->fila_max = fila_tamanho(b->espera);
+
+    event_t *event = cria_event (evento_avisa, temp, h, b, -1);
+    fprio_insere (lef, event, 0, temp);
+}
+
+void evento_desiste (mundo_t *w, event_t *event, struct fprio_t *lef)
+{
+    heroi_t *h = &w->herois[event->h_id];
+    base_t *b = &w->bases[event->b_id];
+    int temp = event->tempo;
+
+    printf("%6d: DESIST HEROI %2d BASE %d\n", temp, h, b);
+
+    int d_id = rand() % N_BASES; // d_id = destino id
+
+    event_t *event = cria_event (evento_viaja, temp, h, d_id, -1);
+    fprio_insere (lef, event, 0, temp);
+}
+
+void evento_avisa (mundo_t *w, event_t *event, struct fprio_t *lef)
+{
+    base_t *b = &w->bases[event->b_id];
+    int temp = event->tempo;
+
+    printf("%6d: AVISA PORTEIRO BASE %d (%2d/%2d) FILA [ ", 
+        temp, b->id_base, cjto_card(b->presentes), b->lotacao);
+
+    fila_imprime(b->espera);
+    printf(" ]\n");
+
+    while ((cjto_card(b->presentes) < b->lotacao) && 
+        (fila_tamanho(b->espera) > 0))
+    {
+        int h_id;
+        fila_retira(b->espera, &h_id);
+        cjto_insere(b->presentes, h_id); 
+
+        printf("%6d: AVISA PORTEIRO BASE %d ADMITE %2d\n", temp, b, h_id);   
+        
+        event_t *event = cria_event (evento_entra, temp, h_id, b, -1);
+        fprio_insere (lef, event, 0, temp);
+    }
+}
+
+void evento_entra (mundo_t *w, event_t *event, struct fprio_t *lef)
+{
+    heroi_t *h = &w->herois[event->h_id];
+    base_t *b = &w->bases[event->b_id];
+    int temp = event->tempo;
+
+    int temp_permanencia = 15 + h->paciencia * ((rand() % 20) + 1); //calculo do tempo de permanencia na base
+    int temposaida = w->relogio + temp_permanencia;
 
     printf("%6d: ENTRA HEROI %2d BASE %d (%2d/%2d) SAI %d\n", 
-        w->relogio, h_id, b_id, cjto_card(b->presentes), b->lotacao, temposaida);
+        temp, h, b, cjto_card(b->presentes), b->lotacao, temposaida);
 
-    agendar_evento(w, EVENT_SAI, temposaida, h_id, b_id, -1);
+    event_t *event = cria_event (evento_entra, temp, h, b, -1);
+    fprio_insere (lef, event, 0, temp + temp_permanencia);
 }
 
-void evento_sai (mundo_t *w, event_t *event)
+void evento_sai (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
-    int h_id = event->h_id;
-    int b_id = event->b_id;
-    base_t *base = &w->bases[b_id];
+    heroi_t *h = &w->herois[event->h_id];
+    base_t *b = &w->bases[event->b_id];
+    int temp = event->tempo;
 
-    cjto_retira(base->presentes, h_id);
+    int status;
+    int dest;
 
-    int num_presentes = cjto_card(base->presentes);
+    if (h->morto)
+        return;
 
-    printf("%6d: SAI HEROI %2d BASE %d (%2d/%2d)\n", 
-        w->relogio, h_id, b_id, num_presentes, base->lotacao);
+    status = cjto_retira(b->presentes, h->id_heroi);
+    if (status < 0)
+        return;
 
-    int d_id = rand() % w->n_bases;
+    dest =  0 + rand() % ((w->n_bases - 1) - 0 + 1);
 
-    agendar_evento(w, EVENT_VIAJA, w->relogio, h_id, d_id, -1);
-    agendar_evento(w, EVENT_AVISA, w->relogio, -1, b_id, -1);
-}
+    event_t *evento_viaja = cria_event(evento_viaja, temp, h, dest, -1);
 
-void evento_viaja (mundo_t *w, event_t *event)
-{
-    int h_id = event->h_id;
-    int d_id = event->b_id;
-
-    heroi_t *h = &w->herois[h_id];
-
-    int base_atual_id = h->base_id;      // base atual
-    local_t loc_origem = w->bases[base_atual_id].local;
-    local_t loc_destino = w->bases[d_id].local;
-
-    double dist = sqrt(pow(loc_destino.x - loc_origem.x, 2) + 
-        pow(loc_destino.y - loc_origem.y, 2));          // distância cartesiana
+    status = fprio_insere (lef, event, 0, temp);
+    if (status < 0)
+        return;
     
-    int duracao = (int)dist / h->velocidad;      // duracao da viagem
+    event_t *evento_avisa = cria_event(evento_avisa, temp, -1, b->id_base, -1);
+    
+    status = fprio_insere (lef, event, 0, temp);
+    if (status < 0)
+        return;
 
-    int tempo_cheg = w->relogio + duracao;     // tempo de chegada
-
-    printf("%6d: VIAJA HEROI %2d BASE %d BASE %d DIST %d VEL %d CHEGA %d\n", 
-        w->relogio, h_id, base_atual_id, d_id, (int)dist, h->velocidad, tempo_cheg);
-
-    agendar_evento(w, EVENT_CHEGA, tempo_cheg, h_id, d_id, -1);
+    printf("%6d: SAI  HEROI %2d BASE %d (%2d/%2d)", temp, h, b, (cjto_card(b->presentes)), b->lotacao);
 }
 
-void evento_morre (mundo_t *w, event_t *event)
+void evento_viaja (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
-    int h_id = event->h_id;
-    int m_id = event->m_id;
-    int b_id = w->herois[h_id].base_id;
+    heroi_t *h = &w->herois[event->h_id];
+    base_t *d = &w->bases[event->b_id];
+    int temp = event->tempo;
+    int dest = event->b_id;
 
-    cjto_retira(w->bases[b_id].presentes, h_id);     //retira heroi do cjto
-    w->herois[h_id].vivo = 0;
+    int status;
 
-    printf("%6d: MORRE HEROI %2d MISSAO %d\n", w->relogio, h_id, m_id);
+    if (h->morto)
+        return;
 
-    agendar_evento(w, EVENT_AVISA, w->relogio, -1, b_id, -1);
+    base_t *b = &w->bases[h->base_id];
+    
+    int dist = calcula_distancia(b->local, d->local);
+    int duracao = dist / h->velocidad;
+
+    event_t *event = cria_event (evento_chega, temp + duracao, h->id_heroi, dest, -1);
+    fprio_insere(lef, event, 0, temp + duracao);
+
+    if (status < 0)
+        return;
+    
+    printf("%6d: VIAJA  HEROI %2d BASE %d BASE %d DIST %d VEL %d CHEGA %d", temp, h, h->base_id, dest, (int)(dist + 0.5), h->velocidad, temp + duracao);
 }
 
-void evento_missao (mundo_t *w, event_t *event)
+void evento_morre (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
-    int m_id = event->m_id;
-    missao_t *m = &w->missoes[m_id];
-    int bmp_id = -1; 
-    double dist_min = -1.0;
+    heroi_t *h = &w->herois[event->h_id];
+    base_t *b = &w->bases[event->b_id];
+    missao_t *m = &w->missoes[event->b_id];
+    int temp = event->tempo;
+
+    if (!b->presentes)
+        return;
+    
+    cjto_retira(b->presentes, h->id_heroi);     //retira heroi do cjto
+    h->morto = 1;   //////
+
+    printf("%6d: MORRE  HEROI %2d MISSAO %d", temp, h, m);
+    event_t *event = cria_event(evento_avisa, temp, -1, b->id_base, -1);
+    fprio_insere (lef, event, 0, temp);
+}
+
+void evento_missao (mundo_t *w, event_t *event, struct fprio_t *lef)
+{
+    missao_t *m = &w->missoes[event->h_id];
+    int temp = event->tempo;
+
+    int bmp_id; 
+    int dist;
+    int risco;
+
+    heroi_t *heroi;
+    int tipo;
+    int prio;
+    int status;
+
+    struct fprio_t *dists_bases = fprio_cria ();
 
     m->tentativas++;
 
-    printf("%6d: MISSAO %d TENT %d HAB REQ: [ ", w->relogio, m_id, m->tentativas);
+    printf("%6d: MISSAO %d TENT %d HAB REQ: [ ", temp, m->id_missao, m->tentativas);
     cjto_imprime(m->habilidades);
     printf(" ]\n");
 
     for (int i = 0; i < w->n_bases; i++) 
     {
-        base_t *b = &w->bases[i];
-        double d = sqrt(pow(m->local.x - b->local.x, 2) + pow(m->local.y - b->local.y, 2));     // dist base -> missao
+        dist = calcula_distancia (w->bases[i].local, m->local);
 
-        struct cjto_t *habs_base = cjto_cria(w->n_habilidades);
-        for (int j = 0; j < w->n_herois; j++) 
+        status = fprio_insere(dists_bases, &w->bases[i], w->bases[i].id_base, dist);
+
+        if (status < 0)
+            return;
+    }
+
+    bmp_id = encontrar_base_mais_proxima (w, m, dists_bases);
+
+    if (bmp_id >= 0)
+    {
+        m->cumprida = true;
+        struct base_t *b = &w->bases[bmp_id];
+
+        b->n_missoes_participadas++;
+
+
+        for (int j = 0; j < w->n_herois; j++)
         {
             if (cjto_pertence(b->presentes, j)) 
             {
-                struct cjto_t *temp = habs_base;
-                habs_base = cjto_uniao(temp, w->herois[j].habilidades);
-                cjto_destroi(temp);
+                heroi = &w->herois[j];
+                risco = m->perigo / (heroi->paciencia + heroi->experiencia + 1.0);
+
+                if (risco > (rand() % (30 - 0 + 1) + 0))
+                {
+                    event_t *event = cria_event (evento_morre, temp, j, bmp_id, m);
+                    status = fprio_insere(lef, event, 0, temp);
+
+                    if (status < 0)
+                        return;
+                }
+                else
+                {
+                    heroi->experiencia++;
+                }
             }
         }
 
-        if (cjto_contem(habs_base, m->habilidades)) 
-        {
-            if (bmp_id == -1 || d < dist_min) 
-            {
-                dist_min = d;
-                bmp_id = i;
-            }
-        }
-        cjto_destroi(habs_base);
+        printf("%6d: MISSAO %d CUMPRIDA BASE %d HABS: [ ", temp, m, w->bases[bmp_id].id_base);
+        cjto_imprime(m->habilidades);
+        printf(" ]\n");
+    }
+    else
+    {
+        event_t *event = cria_event (evento_missao, temp + 24 * 60, -1, -1, m);
+
+        status = fprio_insere (lef, event, 0, temp + 24 * 60);
+        if (status < 0)
+            return;
+        printf ("%6d: MISSAO %d IMPOSSIVEL\n", temp, m->id_missao);
     }
 
-    if (bmp_id != -1) 
-    {
-        processar_sucesso_missao(w, m_id, bmp_id);
-    } 
-    else 
-    {
-        if (w->relogio % 2500 == 0 && w->n_compostos_v > 0) 
-        {
-            int base_proxima = encontrar_base_mais_proxima_absoluta(w, m);
-            w->n_compostos_v--;
-
-        int h_morre = encontrar_heroi_mais_experiente(w, base_proxima);
-            agendar_evento(w, EVENT_MORRE, w->relogio, h_morre, base_proxima, m_id);
-
-            processar_sucesso_missao(w, m_id, base_proxima);
-        }
-        else 
-        {
-            printf("%6d: MISSAO %d IMPOSSIVEL\n", w->relogio, m_id);    //adia 24 hrs missao impossivel
-            agendar_evento(w, EVENT_MISSAO, w->relogio + 1440, -1, -1, m_id);
-        }
-    }   
+    while (fprio_tamanho(dists_bases) > 0)
+        fprio_retira(dists_bases, &tipo, &prio);
+        
+    fprio_destroi (dists_bases);
 }
 
-void evento_fim (mundo_t *w, event_t *event)
+void evento_fim (mundo_t *w, event_t *event, struct fprio_t *lef)
 {
-    printf("%6d: FIM\n", w->relogio);
+    heroi_t *heroi;
+    base_t *base;
+    int temp = event->tempo;
 
-    for (int i = 0; i < w->n_herois; i++) 
+    int missoes_cumpridas = 0;
+    int mortos_totais = 0;
+    int soma_tent = 0;
+    int max_tent = w->missoes[0].tentativas;
+    int min_tent = w->missoes[0].tentativas;
+    char *msg;
+
+    printf("%6d: FIM\n\n", temp);
+
+    // herois
+    for (int h = 0; h < w->n_herois; h++)
     {
-        heroi_t *h = &w->herois[i];
-        printf("HEROI %2d %s PAC %3d VEL %4d EXP %4d HABS [ ", 
-               h->id, h->vivo ? "VIVO " : "MORTO", h->paciencia, 
-               h->velocidad, h->experiencia);
-        cjto_imprime(h->habilidades);
+        heroi = &w->herois[h];
+        msg = heroi->morto ? "MORTO" : "VIVO";
+
+        printf("HEROI %2d %5s PAC %3d VEL %4d EXP %4d HABS [ ", heroi->id_heroi, msg, heroi->paciencia, heroi->velocidad, heroi->experiencia);
+
+        if (heroi->morto)
+            mortos_totais++;
+
+        cjto_imprime (heroi->habilidades);
         printf(" ]\n");
     }
 
-    for (int i = 0; i < w->n_bases; i++) 
+    // base
+    for (int b = 0; b < w->n_bases; b++)
     {
-        base_t *b = &w->bases[i];
-
-        printf("BASE %2d LOT %2d FILA MAX %2d MISSOES %d\n", 
-            b->id, b->lotacao, b->fila_max, b->n_missoes_participadas);
+        base = &w->bases[b];
+        printf("BASE %2d LOT %2d FILA MAX %2d MISSOES %d\n", base->id_base, base->lotacao, base->fila_max, base->n_missoes_participadas);
     }
 
-    double taxa_sucesso = ((double)w->missoes_cumpridas / w->n_missoes) * 100;
-    double taxa_mortalidade = ((double)w->herois_mortos / w->n_herois) * 100;
+    printf("EVENTOS TRATADOS: %d\n", w->total_events);
 
-    printf("EVENTOS TRATADOS: %d\n", w->eventos_tratados);
-    printf("MISSOES CUMPRIDAS: %d/%d (%.1f%%)\n", 
-        w->missoes_cumpridas, w->n_missoes, taxa_sucesso);
-    printf("TENTATIVAS/MISSAO: MIN %d, MAX %d, MEDIA %.1f\n", 
-        w->tentativas_min, w->tentativas_max, (double)w->tentativas_total / w->n_missoes);
-    printf("TAXA MORTALIDADE: %.1f%%\n", taxa_mortalidade);
+    for (int m = 0; m < w->n_missoes; m++)
+    {
+        if (w->missoes[m].cumprida)
+            missoes_cumpridas++;
+
+        soma_tent += w->missoes[m].tentativas;
+
+        if (w->missoes[m].tentativas > max_tent)
+            max_tent = w->missoes[m].tentativas;
+
+        if (w->missoes[m].tentativas < min_tent)
+            min_tent = w->missoes[m].tentativas;
+    }
+
+    // missoes
+    if (w->n_missoes > 0)
+        printf("MISSOES CUMPRIDAS: %d/%d (%.1f%%)\n",
+           missoes_cumpridas, w->n_missoes, (float)(missoes_cumpridas * 100) / w->n_missoes);
+    else
+        printf("MISSOES CUMPRIDAS: 0/%d (0.0%%)\n", w->n_missoes);
+
+    printf("TENTATIVAS/MISSAO: MIN %d, MAX %d, MEDIA %.1f\n", min_tent, max_tent, soma_tent / (float)w->n_missoes);
+         
+    printf("TAXA MORTALIDADE: %.1f%%\n", 100 * (mortos_totais) / (float)w->n_herois);
 }
